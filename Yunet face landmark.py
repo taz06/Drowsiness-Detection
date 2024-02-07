@@ -65,7 +65,7 @@ total_time = 0
 
 #process citra/video/open camera (0)
 #vid_stream = cv2.VideoCapture(r"C:/Users/Tazkia/Downloads/PRATA/Face Detection/cobanyetirr.mp4")
-vid_stream = cv2.VideoCapture(0)
+vid_stream = cv2.VideoCapture(0) #kl webcam coba (-1)
 time.sleep(0.6)
 
 while True:
@@ -76,7 +76,8 @@ while True:
         h, w = frame.shape[:2]
 
         yunet.setInputSize([w,h])
-        results = yunet.detect(frame)[1]
+        results = yunet.detect(frame)[1]  
+        #print(results[0][12])
 
         #Menempatkan Bounding Box
         if results is not None:
@@ -86,6 +87,8 @@ while True:
                 (x3, y3, x4, y4) = bbox
                 cv2.rectangle(frame, (x3, y3), (x4, y4), (0, 255, 0), 1)
 
+                #cv2.circle(frame, (result[0][0], result[0][1]), 1, (0, 0, 255), -1)
+
                 #mengconvert bounding box menjadi dlib rectangle
                 dlibrect = dlib.rectangle(int(x3),int(y3),int(x4),int(y4))
                 #print(dlibrect)
@@ -94,12 +97,12 @@ while True:
                 eye_landmark = Eye_predictor(frame, dlibrect)
                 total_time = total_time + (time.time() - start_time)
                 eye_landmark = face_utils.shape_to_np(eye_landmark) 
-                print(eye_landmark)
+                #print(eye_landmark)
                 for (x, y) in eye_landmark:
                     cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)           
         
         fps_time = time.time() - prev_time
-        print("FPS: ", 1.0 / fps_time)
+        #print("FPS: ", 1.0 / fps_time)
         # show the output image        
         cv2.imshow("Output", frame)
         key = cv2.waitKey(1) & 0xFF
@@ -111,5 +114,3 @@ while True:
         break
 #vid_stream.release()
 print(total_time)
-
-
