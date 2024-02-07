@@ -102,7 +102,7 @@ while True:
                     cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)           
         
         fps_time = time.time() - prev_time
-        #print("FPS: ", 1.0 / fps_time)
+        print("FPS: ", 1.0 / fps_time)
         # show the output image        
         cv2.imshow("Output", frame)
         key = cv2.waitKey(1) & 0xFF
