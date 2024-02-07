@@ -5,12 +5,12 @@ import dlib
 import numpy as np
 from imutils import face_utils
 
-Eye_predictor_path = "C:/Users/Tazkia/Downloads/PRATA/Face Detection/shape_predictor_5_face_landmarks.dat"
-Eye_predictor = dlib.shape_predictor(Eye_predictor_path)
+Eye_predictor_path = "C:/Users/Tazkia/Downloads/PRATA/Face Detection/shape_predictor_5_face_landmarks.dat" #ngambil data predictornya
+Eye_predictor = dlib.shape_predictor(Eye_predictor_path) #memperoleh koordinat landmark
 
 def shape_to_np(shape, dtype="int"):
 	# initialize the list of (x, y)-coordinates
-	coords = np.zeros((12, 2), dtype=dtype)
+	coords = np.zeros((12, 2), dtype=dtype) #12 titik di ruang 2 dimensi
 	# loop over the 68 facial landmarks and convert them
 	# to a 2-tuple of (x, y)-coordinates
 	for i in range(0, 12):
