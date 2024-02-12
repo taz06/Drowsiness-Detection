@@ -49,7 +49,7 @@ total_time = 0
 
 #process citra/video/open camera (0)
 #vid_stream = cv2.VideoCapture(r"C:/Users/Tazkia/Downloads/PRATA/Face Detection/Vid9.mp4")
-vid_stream = cv2.VideoCapture(0)
+vid_stream = cv2.VideoCapture(1)
 time.sleep(0.6)
 acq_time = time.time()
 

@@ -5,7 +5,7 @@ import dlib
 import numpy as np
 from imutils import face_utils
 
-Eye_predictor_path = "C:/Users/Tazkia/Downloads/PRATA/Face Detection/shape_predictor_5_face_landmarks.dat" #ngambil data predictornya
+Eye_predictor_path = "C:/Users/Tazkia/Downloads/PRATA/Face Detection/shape_predictor_68_face_landmarks.dat" #ngambil data predictornya
 Eye_predictor = dlib.shape_predictor(Eye_predictor_path) #memperoleh koordinat landmark
 
 def shape_to_np(shape, dtype="int"):
@@ -65,7 +65,7 @@ total_time = 0
 
 #process citra/video/open camera (0)
 #vid_stream = cv2.VideoCapture(r"C:/Users/Tazkia/Downloads/PRATA/Face Detection/cobanyetirr.mp4")
-vid_stream = cv2.VideoCapture(0) #kl webcam coba (-1)
+vid_stream = cv2.VideoCapture(1) #kl webcam coba (-1)
 time.sleep(0.6)
 
 while True:
