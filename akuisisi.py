@@ -6,7 +6,7 @@ time.sleep(0.6)
 width= int(vid_stream.get(cv2.CAP_PROP_FRAME_WIDTH))
 height= int(vid_stream.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
-out= cv2.VideoWriter('C:/Users/USER/Documents/Github/video/cambiasa30.mp4v', cv2.VideoWriter_fourcc(*'DIVX'), 30, (width,height))
+out= cv2.VideoWriter('C:/Users/USER/Documents/Github/video/cambiasa30xdivx.avi', cv2.VideoWriter_fourcc(*'DIVX'), 30, (width,height)) #tadiny DIVX
 print(width, height)
 while True:
     ret, frame = vid_stream.read()
