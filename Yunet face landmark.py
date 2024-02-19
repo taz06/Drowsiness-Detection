@@ -5,7 +5,7 @@ import dlib
 import numpy as np
 from imutils import face_utils
 
-Eye_predictor_path = "C:/Users/Tazkia/Downloads/PRATA/Face Detection/shape_predictor_68_face_landmarks.dat" #ngambil data predictornya
+Eye_predictor_path = "C:/Users/USER/Downloads/shape_predictor_68_face_landmarks.dat" #ngambil data predictornya
 Eye_predictor = dlib.shape_predictor(Eye_predictor_path) #memperoleh koordinat landmark
 
 def shape_to_np(shape, dtype="int"):
@@ -51,7 +51,7 @@ def yunet_boundingbox(image, box):
 #OpenCV Yunet
 #Memasukkan Path Model DNN
 yunet = cv2.FaceDetectorYN.create(
-    model= "C:/Users/Tazkia/Downloads/PRATA/Face detection/face_detection_yunet_2022mar.onnx",
+    model= "C:/Users/USER/Downloads/face landmark detection/face_detection_yunet_2022mar.onnx",
     config='',
     input_size=(320, 320),
     score_threshold=0.7,
