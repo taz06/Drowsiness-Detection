@@ -5,7 +5,7 @@ import dlib
 import numpy as np
 from imutils import face_utils
 
-Eye_predictor_path = "C:/Users/USER/Downloads/shape_predictor_68_face_landmarks.dat"
+Eye_predictor_path = "C:/Users/Tazkia/Downloads/PRATA/Face Detection/shape_predictor_68_face_landmarks.dat"
 Eye_predictor = dlib.shape_predictor(Eye_predictor_path)
 
 def shape_to_np(shape, dtype="int"):
