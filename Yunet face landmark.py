@@ -5,7 +5,7 @@ import dlib
 import numpy as np
 from imutils import face_utils
 
-Eye_predictor_path = 'shape_predictor_68_face_landmarks.dat' #ngambil data predictornya
+Eye_predictor_path = 'dataset/ibug/nobe.dat' #ngambil data predictorny
 Eye_predictor = dlib.shape_predictor(Eye_predictor_path) #memperoleh koordinat landmark
 
 def shape_to_np(shape, dtype="int"):
@@ -98,12 +98,12 @@ while True:
                 total_time = total_time + (time.time() - start_time)
                 eye_landmark = face_utils.shape_to_np(eye_landmark) 
                 #selected_landmark = eye_landmark[36:48] + eye_landmark[48:68] #+ eye_landmark[17:27] #
-                for (x, y) in eye_landmark[36:48] : 
+                for (x, y) in eye_landmark : 
                     cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)
-                for (x, y) in eye_landmark[48:68] : 
+                '''for (x, y) in eye_landmark[60:68] : 
                     cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)           
                 for (x, y) in eye_landmark[17:27] : 
-                    cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)
+                    cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)'''
         
         fps_time = time.time() - prev_time
         #print("FPS: ", 1.0 / fps_time)
