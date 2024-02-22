@@ -5,7 +5,7 @@ import dlib
 import numpy as np
 from imutils import face_utils
 
-Eye_predictor_path = "C:/Users/USER/Downloads/face landmark detection/wflw_98_landmarks.dat"
+Eye_predictor_path = 'shape_predictor_68_face_landmarks.dat' #"C:/Users/Tazkia/Downloads/PRATA/face landmark detection/wflw_98_landmarks.dat"
 Eye_predictor = dlib.shape_predictor(Eye_predictor_path)
 
 def shape_to_np(shape, dtype="int"):
@@ -49,7 +49,7 @@ total_time = 0
 
 #process citra/video/open camera (0)
 #vid_stream = cv2.VideoCapture(r"C:/Users/Tazkia/Downloads/PRATA/Face Detection/Vid9.mp4")
-vid_stream = cv2.VideoCapture(1)
+vid_stream = cv2.VideoCapture(0)
 time.sleep(0.6)
 acq_time = time.time()
 
@@ -76,8 +76,16 @@ while True:
             eye_landmark = Eye_predictor(frame, rect)
             total_time = total_time + (time.time() - start_time)
             eye_landmark = face_utils.shape_to_np(eye_landmark) 
-            for (x, y) in eye_landmark:
-                cv2.circle(frame, (x, y), 1, (0, 0, 255), -1) 
+            #selected_landmark = eye_landmark[36:48] + eye_landmark[17:27] + eye_landmark[48:68]
+            #for (x, y) in selected_landmark :
+                #while (x,y) < 30 :
+            #    cv2.circle(frame, (x, y), 1, (0, 0, 255), -1) 
+            for (x, y) in eye_landmark[36:48] : 
+                cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)
+            for (x, y) in eye_landmark[48:68] : 
+                cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)           
+            for (x, y) in eye_landmark[17:27] : 
+                cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)
     #show fps
     fps_time = time.time() - prev_time
     print("FPS: ", 1.0 / fps_time)

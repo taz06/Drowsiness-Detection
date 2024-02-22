@@ -5,7 +5,7 @@ import dlib
 import numpy as np
 from imutils import face_utils
 
-Eye_predictor_path = "C:/Users/USER/Downloads/shape_predictor_68_face_landmarks.dat" #ngambil data predictornya
+Eye_predictor_path = 'shape_predictor_68_face_landmarks.dat' #ngambil data predictornya
 Eye_predictor = dlib.shape_predictor(Eye_predictor_path) #memperoleh koordinat landmark
 
 def shape_to_np(shape, dtype="int"):
@@ -51,7 +51,7 @@ def yunet_boundingbox(image, box):
 #OpenCV Yunet
 #Memasukkan Path Model DNN
 yunet = cv2.FaceDetectorYN.create(
-    model= "C:/Users/USER/Downloads/face landmark detection/face_detection_yunet_2022mar.onnx",
+    model= 'face_detection_yunet_2022mar.onnx',
     config='',
     input_size=(320, 320),
     score_threshold=0.7,
@@ -65,7 +65,7 @@ total_time = 0
 
 #process citra/video/open camera (0)
 #vid_stream = cv2.VideoCapture(r"C:/Users/Tazkia/Downloads/PRATA/Face Detection/cobanyetirr.mp4")
-vid_stream = cv2.VideoCapture(1) #kl webcam coba (-1)
+vid_stream = cv2.VideoCapture(0) #kl webcam (1)
 time.sleep(0.6)
 
 while True:
@@ -97,12 +97,16 @@ while True:
                 eye_landmark = Eye_predictor(frame, dlibrect)
                 total_time = total_time + (time.time() - start_time)
                 eye_landmark = face_utils.shape_to_np(eye_landmark) 
-                #print(eye_landmark)
-                for (x, y) in eye_landmark:
+                #selected_landmark = eye_landmark[36:48] + eye_landmark[48:68] #+ eye_landmark[17:27] #
+                for (x, y) in eye_landmark[36:48] : 
+                    cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)
+                for (x, y) in eye_landmark[48:68] : 
                     cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)           
+                for (x, y) in eye_landmark[17:27] : 
+                    cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)
         
         fps_time = time.time() - prev_time
-        print("FPS: ", 1.0 / fps_time)
+        #print("FPS: ", 1.0 / fps_time)
         # show the output image        
         cv2.imshow("Output", frame)
         key = cv2.waitKey(1) & 0xFF
@@ -113,4 +117,4 @@ while True:
     else:
         break
 #vid_stream.release()
-print(total_time)
+#print(total_time)
