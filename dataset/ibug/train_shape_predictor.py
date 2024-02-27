@@ -66,7 +66,7 @@ options.oversampling_translation_jitter = 0.1
 # BE
 # tell the dlib shape predictor to be verbose and print out status
 # messages our model trains
-options.be_verbose = False
+options.be_verbose = True
 
 # NUM
 # number of threads/CPU cores to be used when training -- we default
