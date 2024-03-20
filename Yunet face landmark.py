@@ -5,7 +5,7 @@ import dlib
 import numpy as np
 from imutils import face_utils
 
-Eye_predictor_path = 'dataset/ibug/nobe.dat' #ngambil data predictorny
+Eye_predictor_path = 'model_adv.dat' #ngambil data predictorny
 Eye_predictor = dlib.shape_predictor(Eye_predictor_path) #memperoleh koordinat landmark
 
 def shape_to_np(shape, dtype="int"):
@@ -53,7 +53,7 @@ def yunet_boundingbox(image, box):
 yunet = cv2.FaceDetectorYN.create(
     model= 'face_detection_yunet_2022mar.onnx',
     config='',
-    input_size=(320, 320),
+    input_size=(320, 240),
     score_threshold=0.7,
     nms_threshold=0.3,
     top_k=5000,
@@ -72,7 +72,7 @@ while True:
     prev_time = time.time()
     ret, frame = vid_stream.read()
     if frame is not None:
-        frame = imutils.resize(frame, width=420, height=420)
+        frame = imutils.resize(frame, width=320, height=240)
         h, w = frame.shape[:2]
 
         yunet.setInputSize([w,h])
@@ -99,7 +99,7 @@ while True:
                 eye_landmark = face_utils.shape_to_np(eye_landmark) 
                 #selected_landmark = eye_landmark[36:48] + eye_landmark[48:68] #+ eye_landmark[17:27] #
                 for (x, y) in eye_landmark : 
-                    cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)
+                    cv2.circle(frame, (x, y), 3, (0, 0, 255), -1)
                 '''for (x, y) in eye_landmark[60:68] : 
                     cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)           
                 for (x, y) in eye_landmark[17:27] : 

@@ -4,6 +4,7 @@ import time
 import dlib
 import numpy as np
 from imutils import face_utils
+from collections import OrderedDict
 
 #x_eye = [] #vektor landmark mata sumbu x
 #y_eye = [] #vektor landmark mata sumbu y
@@ -13,6 +14,18 @@ from imutils import face_utils
 format code list
 https://www.programiz.com/python-programming/datetime/strftime
 '''
+FACIAL_MARK_ID = OrderedDict([
+    ("left_brow", {0, 5}),
+    ("right_brow", (5, 10)),
+    ("left_eye", (10, 16)),
+    ("right_eye", (16, 22)),
+    ("mouth", (22, 34)),
+])
+(blstart, blend) = FACIAL_MARK_ID["left_brow"]
+(brstart, brend) = FACIAL_MARK_ID["right_brow"]
+(elstart, elend) = FACIAL_MARK_ID["left_eye"]
+(erstart, erend) = FACIAL_MARK_ID["right_eye"]
+(mstart, mend) = FACIAL_MARK_ID["mouth"]
 
 def shape_to_np(shape, dtype="int"):
 	# initialize the list of (x, y)-coordinates
@@ -71,8 +84,8 @@ yunet = cv2.FaceDetectorYN.create(
 )
 
 #Model Landmark Dlib
-Eye_predictor_path = 'model_adv.dat' #ngambil data predictorny
-Eye_predictor = dlib.shape_predictor(Eye_predictor_path) #memperoleh koordinat landmark
+predictor_path = 'model_adv.dat' #ngambil data predictorny
+lm_predictor = dlib.shape_predictor(predictor_path) #memperoleh koordinat landmark
 
 #Model Klasifikasi kantuk ((belum))
 
@@ -81,60 +94,69 @@ total_time = 0
 #process citra/video/open camera (0)
 #vid_stream = cv2.VideoCapture(r"C:/Users/Tazkia/Downloads/PRATA/Face Detection/cobanyetirr.mp4")
 vid_stream = cv2.VideoCapture(0) #kl webcam (1)
-time.sleep(0.6)
+#time.sleep(0.6)
+fps = vid_stream.get(cv2.CAP_PROP_FPS)
+print("FPS Kamera : ", fps)
 
 while True:
     prev_time = time.time()
-    ret, frame = vid_stream.read()
+    ret, frame = vid_stream.read()   
+    #if frame is not None:
+    frame = imutils.resize(frame, width=320, height=240)
     h, w = frame.shape[:2]
-    
+    cx = w/2
+    cy = h/2
+    #print(cx,cy)
 
-    '''center_x = w/2
-    center_y = h/2'''
-    #print(center_x, center_y)
-    #cv2.circle(frame, (center_x, center_y), 3, (1, 1, 255), -1)
-    if frame is not None:
-        frame = imutils.resize(frame, width=320, height=240)
-        yunet.setInputSize([w,h])
-        results = yunet.detect(frame)[1]  
-        #print(results[0][12])
+    yunet.setInputSize([w,h])
+    results = yunet.detect(frame)[1]  
 
-        #Menempatkan Bounding Box
-        if results is not None:
-            for result in results:
-                box = result[0:10].astype(np.int32)
-                bbox = yunet_boundingbox(frame, box)
-                (x3, y3, x4, y4) = bbox
-                cv2.rectangle(frame, (x3, y3), (x4, y4), (0, 255, 0), 1)
+    #Menempatkan Bounding Box dan landmark
+    if results is not None:
+        for result in results:
+            #print(result)
+            box = result[0:4].astype(np.int32)
+            bbox = yunet_boundingbox(frame, box)
+            (x3, y3, x4, y4) = bbox
 
-                #cv2.circle(frame, (result[0][0], result[0][1]), 1, (0, 0, 255), -1)
+            # 1 wajah (driver saja) yang dideteksi dan proses
+            # wajah driver = paling dekat dan paling tengah
+            # BELUM
 
-                #mengconvert bounding box menjadi dlib rectangle
-                dlibrect = dlib.rectangle(int(x3),int(y3),int(x4),int(y4))
-                #print(dlibrect)
+            #cv2.rectangle(frame, (x3, y3), (x4, y4), (0, 165, 250), 1)
 
-                start_time = time.time()
-                eye_landmark = Eye_predictor(frame, dlibrect)
-                total_time = total_time + (time.time() - start_time)
-                eye_landmark = face_utils.shape_to_np(eye_landmark) 
-                #selected_landmark = eye_landmark[36:48] + eye_landmark[48:68] #+ eye_landmark[17:27] #
-                for (x, y) in eye_landmark : 
-                    cv2.circle(frame, (x, y), 3, (0, 0, 255), -1)
-                '''for (x, y) in eye_landmark[60:68] : 
-                    cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)           
-                for (x, y) in eye_landmark[17:27] : 
-                    cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)'''
+            #cv2.circle(frame, (result[0][0], result[0][1]), 1, (0, 0, 255), -1)
+
+            #mengconvert bounding box menjadi dlib rectangle
+        dlibrect = dlib.rectangle(int(x3),int(y3),int(x4),int(y4))
+
+        start_time = time.time()
+
+        # lm = landmark
+        lm = lm_predictor(frame, dlibrect)
+        total_time = total_time + (time.time() - start_time)
+        lm = face_utils.shape_to_np(lm) 
         
-        fps_time = time.time() - prev_time
-        #print("FPS: ", 1.0 / fps_time)
-        # show the output image        
-        cv2.imshow("Output", frame)
-        key = cv2.waitKey(1) & 0xFF
+        leftbrow = lm[blstart:blend]
+        rightbrow = lm[brstart:brend]
+        lefteye = lm[elstart:elend]
+        righteye = lm[erstart:erend]
+        mouth = lm[mstart:mend]
+        
+        # Visualisasi Landmark
+        for (x, y) in lm : 
+                cv2.circle(frame, (x, y), 2, (0, 0, 255), -1)
 
-        # if the `q` key was pressed, break from the loop
-        if key == ord("q"):
-            break
-    else:
+    fps_time = time.time() - prev_time
+    #print("FPS: ", 1.0 / fps_time)
+    # show the output image        
+    cv2.imshow("Output", frame)
+    key = cv2.waitKey(1) & 0xFF
+
+    # if the `q` key was pressed, break from the loop
+    if key == ord("q"):
         break
+    #else:
+    #    break
 #vid_stream.release()
 #print(total_time)
