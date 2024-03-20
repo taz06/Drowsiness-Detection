@@ -176,7 +176,7 @@ class LivePlotEye:
 print("facial landmark predictor ...")
 #Memasukkan Path Model DNN
 yunet = cv2.FaceDetectorYN.create(
-    model= "./face_detection_yunet/face_detection_yunet_2022mar.onnx",
+    model= "./face_detection_yunet_2022mar.onnx",
     config='',
     input_size=(320, 320),
     score_threshold=0.7,
@@ -224,6 +224,8 @@ yunet.detect(frame)[1]
 t0 = time.time()
 
 while True:
+    start_time = time.time()
+    
     frame = vs.read()
     frame = imutils.resize(frame,width=320, height=240)    #low for need speed fps
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)          #Convert menuju gray
@@ -429,6 +431,10 @@ while True:
     cv2.imshow("Eye Aspect Ratio Plotter", imgPlotEye)
 
     T = time.time() - 0
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    FPS = 1 / elapsed_time
+    print("FPS:", FPS)
 
     key = cv2.waitKey(1) & 0xFF
     if key == ord("q" or "Q"): #Tombol untuk menghentikan proses

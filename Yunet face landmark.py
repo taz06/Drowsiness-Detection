@@ -68,9 +68,14 @@ total_time = 0
 vid_stream = cv2.VideoCapture(0) #kl webcam (1)
 time.sleep(0.6)
 
+frame_counter = 0
 while True:
     prev_time = time.time()
     ret, frame = vid_stream.read()
+    frame_counter += 1
+    
+    if frame_counter %8 != 0:
+        continue
     if frame is not None:
         frame = imutils.resize(frame, width=320, height=240)
         h, w = frame.shape[:2]
@@ -106,7 +111,7 @@ while True:
                     cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)'''
         
         fps_time = time.time() - prev_time
-        #print("FPS: ", 1.0 / fps_time)
+        print("FPS: ", 1.0 / fps_time)
         # show the output image        
         cv2.imshow("Output", frame)
         key = cv2.waitKey(1) & 0xFF
