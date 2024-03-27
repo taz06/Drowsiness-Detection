@@ -5,6 +5,8 @@ import dlib
 import numpy as np
 from imutils import face_utils
 from collections import OrderedDict
+from datetime import datetime
+import pandas as pd
 
 #x_eye = [] #vektor landmark mata sumbu x
 #y_eye = [] #vektor landmark mata sumbu y
@@ -16,32 +18,15 @@ https://www.programiz.com/python-programming/datetime/strftime
 '''
 
 # variabel untuk menghitung waktu stiap tahap
-t0 = 0
 prep_time = 0
 facedet_time = 0
 lm_time = 0
-calear_time = 0
-calmar_time = 0
-caleed_time = 0
+convert_time = 0
+datawaktu = []
+
 
 # variabel frame dan fps
 countframe = 0
-
-# variabel ekstraksi fitur
-
-
-FACIAL_MARK_ID = OrderedDict([
-    ("left_brow", {0, 5}),
-    ("right_brow", (5, 10)),
-    ("left_eye", (10, 16)),
-    ("right_eye", (16, 22)),
-    ("mouth", (22, 34)),
-])
-(blstart, blend) = FACIAL_MARK_ID["left_brow"]
-(brstart, brend) = FACIAL_MARK_ID["right_brow"]
-(elstart, elend) = FACIAL_MARK_ID["left_eye"]
-(erstart, erend) = FACIAL_MARK_ID["right_eye"]
-(mstart, mend) = FACIAL_MARK_ID["mouth"]
 
 def shape_to_np(shape, dtype="int"):
 	# initialize the list of (x, y)-coordinates
@@ -82,26 +67,6 @@ def yunet_boundingbox(image, box):
     bbox_y2 = min(bbox_y2, image.shape[0])
 
     return(bbox_x1, bbox_y1, bbox_x2, bbox_y2)
-
-#function utk menghitung jarak 2 vektor
-def dist(ptA, ptB):
-    return np.linalg.norm(ptA-ptB)
-
-#function untuk menghitung EAR
-def eye_aspect_ratio(eye):
-    A = dist(eye[1], eye[5])
-    B = dist(eye[2], eye[4])
-    C = dist(eye[0], eye[3])
-    EAR = (A+B) / (2.0 * C)
-    return EAR
-
-#function untuk menghitung MAR
-def mouth_aspect_ratio(mouth):
-    return mouth
-
-#function untuk menghitung eyebrow eye distance
-def eyebrow_eye_distance(eyebrow):
-    return eyebrow
     
 #Model Deteksi wajah OpenCV Yunet
 yunet = cv2.FaceDetectorYN.create(
@@ -119,41 +84,40 @@ yunet = cv2.FaceDetectorYN.create(
 predictor_path = 'model_adv.dat' #ngambil data predictorny
 lm_predictor = dlib.shape_predictor(predictor_path) #memperoleh koordinat landmark
 
-#Model Klasifikasi kantuk ((belum))
-
 total_time = 0
-
 #process citra/video/open camera (0)
 #vid_stream = cv2.VideoCapture(r"C:/Users/Tazkia/Downloads/PRATA/Face Detection/cobanyetirr.mp4")
 vid_stream = cv2.VideoCapture(0) #kl webcam (1)
 #time.sleep(0.6)
-fps = vid_stream.get(cv2.CAP_PROP_FPS)
-print("FPS Kamera : ", fps)
+
 
 while True:
-    t0 = time.time()
+    t0 = cv2.getTickCount()
     ret, frame = vid_stream.read()   
     #if frame is not None:
 
     #pre proc
-    frame = imutils.resize(frame, width=1080, height=720)
+    frame = imutils.resize(frame, width=320, height=240)
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-    #t1 += (time.time() - t0) # menghitung waktu preproc
-    #print("preproc time : ", 1.0 / t1)
-
     h, w = frame.shape[:2]
     #print(h, w)
     cx = w/2
     cy = h/2
     #print(cx,cy)
 
+    prep_time = (cv2.getTickCount() - t0) / cv2.getTickFrequency() # menghitung waktu preproc
+    print("preproc time : ", prep_time) #dlm second
+
+    t1 = cv2.getTickCount()
     yunet.setInputSize([w,h])
     results = yunet.detect(frame)[1]  
+    facedet_time = (cv2.getTickCount() - t1) / cv2.getTickFrequency()
+    print("face detection time :", facedet_time)
 
     #Menempatkan Bounding Box dan landmark
     if results is not None:
         countframe += 1
+        t2 = cv2.getTickCount()
         for result in results:
             #print(result)
             box = result[0:4].astype(np.int32)
@@ -170,34 +134,31 @@ while True:
 
             #mengconvert bounding box menjadi dlib rectangle
         dlibrect = dlib.rectangle(int(x3),int(y3),int(x4),int(y4))
-
-        start_time = time.time()
-        print(countframe)
-
-        # lm = landmark
+        convert_time = (cv2.getTickCount() - t2) / cv2.getTickFrequency()
+        print("converting time :", convert_time)
+        
+        t3 = cv2.getTickCount()
         lm = lm_predictor(gray, dlibrect)
-        total_time = total_time + (time.time() - start_time)
+        lm_time = (cv2.getTickCount() - t3) / cv2.getTickFrequency()
+        print("landmark time :", lm_time)
+        #total_time = total_time + (time.time() - start_time)
+        
         lm = face_utils.shape_to_np(lm) 
-        
-        leftbrow = lm[blstart:blend]
-        rightbrow = lm[brstart:brend]
-        lefteye = lm[elstart:elend]
-        righteye = lm[erstart:erend]
-        mouth = lm[mstart:mend]
-        
         # Visualisasi Landmark
         for (x, y) in lm : 
-                cv2.circle(gray, (x, y), 2, (0, 0, 255), -1)
+                cv2.circle(frame, (x, y), 2, (0, 0, 255), -1)
 
-    T = time.time() - 0
-    fps = 1 / T
     #print("FPS: ", 1.0 / T)
-    # show the output image        
+    # show the output image    
+    datawaktu.append([countframe, prep_time, facedet_time, lm_time])
+    df = pd.DataFrame(datawaktu, columns = ['frame', 'prep time', 'facedetect time', 'landmark time'])
+    print("frame saat ini :", countframe)    
     cv2.imshow("Output", frame)
     key = cv2.waitKey(1) & 0xFF
 
     # if the `q` key was pressed, break from the loop
     if key == ord("q"):
+        #df.to_csv('data waktu saja terbaru' + '.csv', encoding='utf-8', decimal='.', index=False, mode='a')
         break
     #else:
     #    break
