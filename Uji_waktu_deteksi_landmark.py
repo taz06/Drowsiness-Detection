@@ -81,8 +81,10 @@ yunet = cv2.FaceDetectorYN.create(
 )
 
 #Model Landmark Dlib
-predictor_path = 'model_adv.dat' #ngambil data predictorny
-lm_predictor = dlib.shape_predictor(predictor_path) #memperoleh koordinat landmark
+#predictor_path = 'model_adv.dat' #ngambil data predictorny
+lm_predictor2 = dlib.shape_predictor('shape_predictor_68_face_landmarks.dat') #memperoleh koordinat landmark
+lm_predictor = dlib.shape_predictor('model_adv.dat') #memperoleh koordinat landmark
+
 
 total_time = 0
 #process citra/video/open camera (0)
@@ -92,11 +94,11 @@ vid_stream = cv2.VideoCapture(0) #kl webcam (1)
 
 
 while True:
-    t0 = cv2.getTickCount()
     ret, frame = vid_stream.read()   
     #if frame is not None:
 
     #pre proc
+    t0 = cv2.getTickCount()
     frame = imutils.resize(frame, width=320, height=240)
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     h, w = frame.shape[:2]
@@ -117,7 +119,7 @@ while True:
     #Menempatkan Bounding Box dan landmark
     if results is not None:
         countframe += 1
-        t2 = cv2.getTickCount()
+        #t2 = cv2.getTickCount()
         for result in results:
             #print(result)
             box = result[0:4].astype(np.int32)
@@ -134,15 +136,21 @@ while True:
 
             #mengconvert bounding box menjadi dlib rectangle
         dlibrect = dlib.rectangle(int(x3),int(y3),int(x4),int(y4))
-        convert_time = (cv2.getTickCount() - t2) / cv2.getTickFrequency()
-        print("converting time :", convert_time)
+        #convert_time = (cv2.getTickCount() - t2) / cv2.getTickFrequency()
+        #print("converting time :", convert_time)
         
-        t3 = cv2.getTickCount()
-        lm = lm_predictor(gray, dlibrect)
-        lm_time = (cv2.getTickCount() - t3) / cv2.getTickFrequency()
+        t2 = cv2.getTickCount()
+        lm = lm_predictor(frame, dlibrect)
+        lm_time = (cv2.getTickCount() - t2) / cv2.getTickFrequency()
+        print(cv2.getTickFrequency())
         print("landmark time :", lm_time)
         #total_time = total_time + (time.time() - start_time)
         
+        t3 = cv2.getTickCount()
+        lm2 = lm_predictor2(frame, dlibrect)
+        lm2_time = (cv2.getTickCount() - t3) / cv2.getTickFrequency()
+        print("landmark 68 time :", lm2_time)
+
         lm = face_utils.shape_to_np(lm) 
         # Visualisasi Landmark
         for (x, y) in lm : 
@@ -150,15 +158,17 @@ while True:
 
     #print("FPS: ", 1.0 / T)
     # show the output image    
-    datawaktu.append([countframe, prep_time, facedet_time, lm_time])
-    df = pd.DataFrame(datawaktu, columns = ['frame', 'prep time', 'facedetect time', 'landmark time'])
+    datawaktu.append([countframe, prep_time, facedet_time, lm_time, lm2_time])
+    df = pd.DataFrame(datawaktu, columns = ['frame','prep time', 'face detect time', 'custom landmark time', 'landmark 68 time'])
     print("frame saat ini :", countframe)    
     cv2.imshow("Output", frame)
     key = cv2.waitKey(1) & 0xFF
 
     # if the `q` key was pressed, break from the loop
     if key == ord("q"):
-        #df.to_csv('data waktu saja terbaru' + '.csv', encoding='utf-8', decimal='.', index=False, mode='a')
+        print(df)
+        # untuk nyimpen hasil
+        #df.to_csv('data bener setelah preprocessing' + '.csv', encoding='utf-8', decimal='.', index=False, mode='a')
         break
     #else:
     #    break

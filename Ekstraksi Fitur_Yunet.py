@@ -168,7 +168,7 @@ while True:
 
             #cv2.circle(frame, (result[0][0], result[0][1]), 1, (0, 0, 255), -1)
 
-            #mengconvert bounding box menjadi dlib rectangle
+        # convert bounding box open cv Yunet menjadi dlib rectangle
         dlibrect = dlib.rectangle(int(x3),int(y3),int(x4),int(y4))
 
         start_time = time.time()
